@@ -549,7 +549,7 @@ pub fn swap_internal<'b, 'info>(
 
 /// Performs a single exact input/output swap
 /// if is_base_input = true, return value is the max_amount_out, otherwise is min_amount_in
-pub fn exact_internal<'b, 'c: 'info, 'info>(
+pub fn exact_internal<'b, 'c, 'info>(
     ctx: &mut SwapAccounts<'b, 'info>,
     remaining_accounts: &'c [AccountInfo<'info>],
     amount_specified: u64,
@@ -752,7 +752,7 @@ pub fn exact_internal<'b, 'c: 'info, 'info>(
     }
 }
 
-pub fn swap<'a, 'b, 'c: 'info, 'info>(
+pub fn swap<'a, 'b, 'c, 'info>(
     ctx: Context<'a, 'b, 'c, 'info, SwapSingle<'info>>,
     amount: u64,
     other_amount_threshold: u64,

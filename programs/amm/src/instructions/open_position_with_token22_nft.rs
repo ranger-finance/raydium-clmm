@@ -1,6 +1,5 @@
 use super::open_position::open_position;
 use crate::states::*;
-use crate::util::create_position_nft_mint_with_extensions;
 use anchor_lang::prelude::*;
 use anchor_spl::associated_token::{create, AssociatedToken, Create};
 use anchor_spl::token::Token;
@@ -142,7 +141,7 @@ pub struct OpenPositionWithToken22Nft<'info> {
     // pub tick_array_bitmap: AccountLoader<'info, TickArrayBitmapExtension>,
 }
 
-pub fn open_position_with_token22_nft<'a, 'b, 'c: 'info, 'info>(
+pub fn open_position_with_token22_nft<'a, 'b, 'c, 'info>(
     ctx: Context<'a, 'b, 'c, 'info, OpenPositionWithToken22Nft<'info>>,
     liquidity: u128,
     amount_0_max: u64,
@@ -154,15 +153,16 @@ pub fn open_position_with_token22_nft<'a, 'b, 'c: 'info, 'info>(
     with_metadata: bool,
     base_flag: Option<bool>,
 ) -> Result<()> {
-    create_position_nft_mint_with_extensions(
-        &ctx.accounts.payer,
-        &ctx.accounts.position_nft_mint,
-        &ctx.accounts.pool_state.to_account_info(),
-        &ctx.accounts.personal_position.to_account_info(),
-        &ctx.accounts.system_program,
-        &ctx.accounts.token_program_2022,
-        with_metadata,
-    )?;
+    // TODO - Disabling to support anchor v0.28.0
+    // create_position_nft_mint_with_extensions(
+    //     &ctx.accounts.payer,
+    //     &ctx.accounts.position_nft_mint,
+    //     &ctx.accounts.pool_state.to_account_info(),
+    //     &ctx.accounts.personal_position.to_account_info(),
+    //     &ctx.accounts.system_program,
+    //     &ctx.accounts.token_program_2022,
+    //     with_metadata,
+    // )?;
 
     // create user position nft account
     create(CpiContext::new(
@@ -201,8 +201,8 @@ pub fn open_position_with_token22_nft<'a, 'b, 'c: 'info, 'info>(
         Some(ctx.accounts.vault_0_mint.clone()),
         Some(ctx.accounts.vault_1_mint.clone()),
         &ctx.remaining_accounts,
-        ctx.bumps.protocol_position,
-        ctx.bumps.personal_position,
+        *ctx.bumps.get("protocol_position").unwrap(),
+        *ctx.bumps.get("personal_position").unwrap(),
         liquidity,
         amount_0_max,
         amount_1_max,

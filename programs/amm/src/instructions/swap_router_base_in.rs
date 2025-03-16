@@ -32,7 +32,7 @@ pub struct SwapRouterBaseIn<'info> {
     pub memo_program: UncheckedAccount<'info>,
 }
 
-pub fn swap_router_base_in<'a, 'b, 'c: 'info, 'info>(
+pub fn swap_router_base_in<'a, 'b, 'c, 'info>(
     ctx: Context<'a, 'b, 'c, 'info, SwapRouterBaseIn<'info>>,
     amount_in: u64,
     amount_out_minimum: u64,
@@ -40,7 +40,9 @@ pub fn swap_router_base_in<'a, 'b, 'c: 'info, 'info>(
     let mut amount_in_internal = amount_in;
     let mut input_token_account = Box::new(ctx.accounts.input_token_account.clone());
     let mut input_token_mint = Box::new(ctx.accounts.input_token_mint.clone());
-    let mut accounts: &[AccountInfo] = ctx.remaining_accounts;
+    // TODO - Disabled to support anchor v0.28.0 - Lifetime issues
+    // let mut accounts: &[AccountInfo] = ctx.remaining_accounts;
+    let mut accounts: &[AccountInfo] = &[];
     while !accounts.is_empty() {
         let mut remaining_accounts = accounts.iter();
         let account_info = remaining_accounts.next().unwrap();

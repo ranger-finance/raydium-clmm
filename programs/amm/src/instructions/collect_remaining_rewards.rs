@@ -6,6 +6,7 @@ use anchor_spl::{
     token::{self, Token},
     token_interface::{Mint, Token2022, TokenAccount},
 };
+use std::str::FromStr;
 
 /// Memo msg for collect remaining
 pub const COLLECT_REMAINING_MEMO_MSG: &'static [u8] = b"raydium_collect_remaining";
@@ -35,7 +36,7 @@ pub struct CollectRemainingRewards<'info> {
     /// memo program
     /// CHECK:
     #[account(
-        address = spl_memo::id()
+        address = Pubkey::from_str("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr").unwrap()
     )]
     pub memo_program: UncheckedAccount<'info>,
 }

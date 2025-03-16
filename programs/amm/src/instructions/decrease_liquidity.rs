@@ -94,7 +94,7 @@ pub struct DecreaseLiquidity<'info> {
     // pub tick_array_bitmap: AccountLoader<'info, TickArrayBitmapExtension>,
 }
 
-pub fn decrease_liquidity_v1<'a, 'b, 'c: 'info, 'info>(
+pub fn decrease_liquidity_v1<'a, 'b, 'c, 'info>(
     ctx: Context<'a, 'b, 'c, 'info, DecreaseLiquidity<'info>>,
     liquidity: u128,
     amount_0_min: u64,
@@ -122,7 +122,7 @@ pub fn decrease_liquidity_v1<'a, 'b, 'c: 'info, 'info>(
     )
 }
 
-pub fn decrease_liquidity<'a, 'b, 'c: 'info, 'info>(
+pub fn decrease_liquidity<'a, 'b, 'c, 'info>(
     pool_state_loader: &'b AccountLoader<'info, PoolState>,
     protocol_position: &'b mut Box<Account<'info, ProtocolPositionState>>,
     personal_position: &'b mut Box<Account<'info, PersonalPositionState>>,
@@ -170,22 +170,23 @@ pub fn decrease_liquidity<'a, 'b, 'c: 'info, 'info>(
             tick_array_upper_loader.load()?.start_tick_index,
         ]);
 
-        for account_info in remaining_accounts.into_iter() {
-            if account_info
-                .key()
-                .eq(&TickArrayBitmapExtension::key(pool_state.key()))
-            {
-                tickarray_bitmap_extension = Some(account_info);
-                continue;
-            }
-            remaining_collect_accounts.push(account_info);
-        }
-        if use_tickarray_bitmap_extension {
-            require!(
-                tickarray_bitmap_extension.is_some(),
-                ErrorCode::MissingTickArrayBitmapExtensionAccount
-            );
-        }
+        // TODO - Disabled to support anchor v0.28.0 - Lifetime issues
+        // for account_info in remaining_accounts.into_iter() {
+        //     if account_info
+        //         .key()
+        //         .eq(&TickArrayBitmapExtension::key(pool_state.key()))
+        //     {
+        //         tickarray_bitmap_extension = Some(account_info);
+        //         continue;
+        //     }
+        //     remaining_collect_accounts.push(account_info);
+        // }
+        // if use_tickarray_bitmap_extension {
+        //     require!(
+        //         tickarray_bitmap_extension.is_some(),
+        //         ErrorCode::MissingTickArrayBitmapExtensionAccount
+        //     );
+        // }
     }
 
     let (decrease_amount_0, latest_fees_owed_0, decrease_amount_1, latest_fees_owed_1) =
@@ -299,7 +300,7 @@ pub fn decrease_liquidity<'a, 'b, 'c: 'info, 'info>(
     Ok(())
 }
 
-pub fn decrease_liquidity_and_update_position<'a, 'b, 'c: 'info, 'info>(
+pub fn decrease_liquidity_and_update_position<'a, 'b, 'c, 'info>(
     pool_state_loader: &AccountLoader<'info, PoolState>,
     protocol_position: &mut Box<Account<'info, ProtocolPositionState>>,
     personal_position: &mut Box<Account<'info, PersonalPositionState>>,
@@ -381,7 +382,7 @@ pub fn decrease_liquidity_and_update_position<'a, 'b, 'c: 'info, 'info>(
     ))
 }
 
-pub fn burn_liquidity<'c: 'info, 'info>(
+pub fn burn_liquidity<'c, 'info>(
     pool_state: &mut RefMut<PoolState>,
     tick_array_lower_loader: &AccountLoader<'info, TickArrayState>,
     tick_array_upper_loader: &AccountLoader<'info, TickArrayState>,
@@ -421,26 +422,26 @@ pub fn burn_liquidity<'c: 'info, 'info>(
         tick_upper_state,
     )?;
 
-    if flip_tick_lower {
-        let mut tick_array_lower = tick_array_lower_loader.load_mut()?;
-        tick_array_lower.update_initialized_tick_count(false)?;
-        if tick_array_lower.initialized_tick_count == 0 {
-            pool_state.flip_tick_array_bit(
-                tickarray_bitmap_extension,
-                tick_array_lower.start_tick_index,
-            )?;
-        }
-    }
-    if flip_tick_upper {
-        let mut tick_array_upper = tick_array_upper_loader.load_mut()?;
-        tick_array_upper.update_initialized_tick_count(false)?;
-        if tick_array_upper.initialized_tick_count == 0 {
-            pool_state.flip_tick_array_bit(
-                tickarray_bitmap_extension,
-                tick_array_upper.start_tick_index,
-            )?;
-        }
-    }
+    // if flip_tick_lower {
+    //     let mut tick_array_lower = tick_array_lower_loader.load_mut()?;
+    //     tick_array_lower.update_initialized_tick_count(false)?;
+    //     if tick_array_lower.initialized_tick_count == 0 {
+    //         pool_state.flip_tick_array_bit(
+    //             tickarray_bitmap_extension,
+    //             tick_array_lower.start_tick_index,
+    //         )?;
+    //     }
+    // }
+    // if flip_tick_upper {
+    //     let mut tick_array_upper = tick_array_upper_loader.load_mut()?;
+    //     tick_array_upper.update_initialized_tick_count(false)?;
+    //     if tick_array_upper.initialized_tick_count == 0 {
+    //         pool_state.flip_tick_array_bit(
+    //             tickarray_bitmap_extension,
+    //             tick_array_upper.start_tick_index,
+    //         )?;
+    //     }
+    // }
 
     emit!(LiquidityChangeEvent {
         pool_state: pool_state.key(),

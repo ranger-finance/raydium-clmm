@@ -9,6 +9,7 @@ use crate::{states::*, util};
 use anchor_lang::prelude::*;
 use anchor_spl::token::Token;
 use anchor_spl::token_interface::{Mint, Token2022, TokenAccount};
+use std::str::FromStr;
 
 /// Memo msg for swap
 pub const SWAP_MEMO_MSG: &'static [u8] = b"raydium_swap";
@@ -53,7 +54,7 @@ pub struct SwapSingleV2<'info> {
 
     /// CHECK:
     #[account(
-        address = spl_memo::id()
+        address = Pubkey::from_str("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr").unwrap()
     )]
     pub memo_program: UncheckedAccount<'info>,
 
@@ -77,7 +78,7 @@ pub struct SwapSingleV2<'info> {
 
 /// Performs a single exact input/output swap
 /// if is_base_input = true, return value is the max_amount_out, otherwise is min_amount_in
-pub fn exact_internal_v2<'c: 'info, 'info>(
+pub fn exact_internal_v2<'c, 'info>(
     ctx: &mut SwapSingleV2<'info>,
     remaining_accounts: &'c [AccountInfo<'info>],
     amount_specified: u64,
@@ -335,7 +336,7 @@ pub fn exact_internal_v2<'c: 'info, 'info>(
     }
 }
 
-pub fn swap_v2<'a, 'b, 'c: 'info, 'info>(
+pub fn swap_v2<'a, 'b, 'c, 'info>(
     ctx: Context<'a, 'b, 'c, 'info, SwapSingleV2<'info>>,
     amount: u64,
     other_amount_threshold: u64,

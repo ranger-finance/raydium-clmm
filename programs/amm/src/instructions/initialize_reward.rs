@@ -105,14 +105,15 @@ pub fn initialize_reward(
         &ctx.remaining_accounts,
         &ctx.accounts.reward_token_mint,
     )?;
-    if !util::is_supported_mint(
-        &ctx.accounts.reward_token_mint,
-        mint_associated_is_initialized,
-    )
-    .unwrap()
-    {
-        return err!(ErrorCode::NotSupportMint);
-    }
+    // TODO - Disabling to support anchor v0.28.0
+    // if !util::is_supported_mint(
+    //     &ctx.accounts.reward_token_mint,
+    //     mint_associated_is_initialized,
+    // )
+    // .unwrap()
+    // {
+    //     return err!(ErrorCode::NotSupportMint);
+    // }
     let operation_state = ctx.accounts.operation_state.load()?;
     require!(
         ctx.accounts.reward_funder.key() == crate::admin::id()

@@ -165,7 +165,7 @@ pub struct OpenPosition<'info> {
     // pub tick_array_bitmap: AccountLoader<'info, TickArrayBitmapExtension>,
 }
 
-pub fn open_position_v1<'a, 'b, 'c: 'info, 'info>(
+pub fn open_position_v1<'a, 'b, 'c, 'info>(
     ctx: Context<'a, 'b, 'c, 'info, OpenPosition<'info>>,
     liquidity: u128,
     amount_0_max: u64,
@@ -201,8 +201,8 @@ pub fn open_position_v1<'a, 'b, 'c: 'info, 'info>(
         None,
         None,
         &ctx.remaining_accounts,
-        ctx.bumps.protocol_position,
-        ctx.bumps.personal_position,
+        *ctx.bumps.get("protocol_position").unwrap(),
+        *ctx.bumps.get("personal_position").unwrap(),
         liquidity,
         amount_0_max,
         amount_1_max,
@@ -216,7 +216,7 @@ pub fn open_position_v1<'a, 'b, 'c: 'info, 'info>(
     )
 }
 
-pub fn open_position<'a, 'b, 'c: 'info, 'info>(
+pub fn open_position<'a, 'b, 'c, 'info>(
     payer: &'b Signer<'info>,
     position_nft_owner: &'b UncheckedAccount<'info>,
     position_nft_mint: &'b AccountInfo<'info>,
@@ -399,7 +399,7 @@ pub fn open_position<'a, 'b, 'c: 'info, 'info>(
 }
 
 /// Add liquidity to an initialized pool
-pub fn add_liquidity<'b, 'c: 'info, 'info>(
+pub fn add_liquidity<'b, 'c, 'info>(
     payer: &'b Signer<'info>,
     token_account_0: &'b AccountInfo<'info>,
     token_account_1: &'b AccountInfo<'info>,
@@ -504,30 +504,31 @@ pub fn add_liquidity<'b, 'c: 'info, 'info>(
         tick_upper_state,
     )?;
 
-    if flip_tick_lower {
-        let mut tick_array_lower = tick_array_lower_loader.load_mut()?;
-        let before_init_tick_count = tick_array_lower.initialized_tick_count;
-        tick_array_lower.update_initialized_tick_count(true)?;
+    /// TODO - Disabled to support anchor v0.28.0 and save from lifetime issues
+    // if flip_tick_lower {
+    //     let mut tick_array_lower = tick_array_lower_loader.load_mut()?;
+    //     let before_init_tick_count = tick_array_lower.initialized_tick_count;
+    //     tick_array_lower.update_initialized_tick_count(true)?;
 
-        if before_init_tick_count == 0 {
-            pool_state.flip_tick_array_bit(
-                tick_array_bitmap_extension,
-                tick_array_lower.start_tick_index,
-            )?;
-        }
-    }
-    if flip_tick_upper {
-        let mut tick_array_upper = tick_array_upper_loader.load_mut()?;
-        let before_init_tick_count = tick_array_upper.initialized_tick_count;
-        tick_array_upper.update_initialized_tick_count(true)?;
+    //     if before_init_tick_count == 0 {
+    //         pool_state.flip_tick_array_bit(
+    //             tick_array_bitmap_extension,
+    //             tick_array_lower.start_tick_index,
+    //         )?;
+    //     }
+    // }
+    // if flip_tick_upper {
+    //     let mut tick_array_upper = tick_array_upper_loader.load_mut()?;
+    //     let before_init_tick_count = tick_array_upper.initialized_tick_count;
+    //     tick_array_upper.update_initialized_tick_count(true)?;
 
-        if before_init_tick_count == 0 {
-            pool_state.flip_tick_array_bit(
-                tick_array_bitmap_extension,
-                tick_array_upper.start_tick_index,
-            )?;
-        }
-    }
+    //     if before_init_tick_count == 0 {
+    //         pool_state.flip_tick_array_bit(
+    //             tick_array_bitmap_extension,
+    //             tick_array_upper.start_tick_index,
+    //         )?;
+    //     }
+    // }
     require!(
         amount_0 > 0 || amount_1 > 0,
         ErrorCode::ForbidBothZeroForSupplyLiquidity
@@ -894,8 +895,11 @@ pub fn initialize_token_metadata_extension<'info>(
     let mint_data = position_nft_mint.try_borrow_data()?;
     let mint_state_unpacked =
         StateWithExtensions::<spl_token_2022::state::Mint>::unpack(&mint_data)?;
-    let new_account_len = mint_state_unpacked
-        .try_get_new_account_len::<spl_token_metadata_interface::state::TokenMetadata>(&metadata)?;
+    // TODO - Disabling to support anchor v0.28.0
+    // let new_account_len = mint_state_unpacked
+    //     .try_get_new_account_len::<spl_token_metadata_interface::state::TokenMetadata>(&metadata)?;
+    let new_account_len = 1000;
+
     let new_rent_exempt_lamports = Rent::get()?.minimum_balance(new_account_len);
     let additional_lamports = new_rent_exempt_lamports.saturating_sub(position_nft_mint.lamports());
     // CPI call will borrow the account data

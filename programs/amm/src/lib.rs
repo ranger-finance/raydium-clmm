@@ -48,7 +48,7 @@ pub mod amm_v3 {
     /// * `protocol_fee_rate` - The rate of protocol fee within trade fee.
     /// * `fund_fee_rate` - The rate of fund fee within trade fee.
     ///
-    pub fn create_amm_config(
+    pub fn create_amm_config<'info>(
         ctx: Context<CreateAmmConfig>,
         index: u16,
         tick_spacing: u16,
@@ -71,7 +71,7 @@ pub mod amm_v3 {
     }
 
     /// Create support token22 mint account which can create pool and send rewards with ignoring the not support extensions.
-    pub fn create_support_mint_associated(ctx: Context<CreateSupportMintAssociated>) -> Result<()> {
+    pub fn create_support_mint_associated<'info>(ctx: Context<CreateSupportMintAssociated>) -> Result<()> {
         instructions::create_support_mint_associated(ctx)
     }
 
@@ -88,7 +88,7 @@ pub mod amm_v3 {
     /// * `new_fund_owner`- The config's new fund owner, be set when `param` is 4
     /// * `param`- The value can be 0 | 1 | 2 | 3 | 4, otherwise will report a error
     ///
-    pub fn update_amm_config(ctx: Context<UpdateAmmConfig>, param: u8, value: u32) -> Result<()> {
+    pub fn update_amm_config<'info>(ctx: Context<UpdateAmmConfig>, param: u8, value: u32) -> Result<()> {
         instructions::update_amm_config(ctx, param, value)
     }
 
@@ -99,7 +99,7 @@ pub mod amm_v3 {
     /// * `ctx`- The context of accounts
     /// * `sqrt_price_x64` - the initial sqrt price (amount_token_1 / amount_token_0) of the pool as a Q64.64
     /// Note: The open_time must be smaller than the current block_timestamp on chain.
-    pub fn create_pool(
+    pub fn create_pool<'info>(
         ctx: Context<CreatePool>,
         sqrt_price_x64: u128,
         open_time: u64,
@@ -114,7 +114,7 @@ pub mod amm_v3 {
     /// * `ctx`- The context of accounts
     /// * `status` - The value of status
     ///
-    pub fn update_pool_status(ctx: Context<UpdatePoolStatus>, status: u8) -> Result<()> {
+    pub fn update_pool_status<'info>(ctx: Context<UpdatePoolStatus>, status: u8) -> Result<()> {
         instructions::update_pool_status(ctx, status)
     }
 
@@ -124,7 +124,7 @@ pub mod amm_v3 {
     ///
     /// * `ctx`- The context of accounts
     ///
-    pub fn create_operation_account(ctx: Context<CreateOperationAccount>) -> Result<()> {
+    pub fn create_operation_account<'info>(ctx: Context<CreateOperationAccount>) -> Result<()> {
         instructions::create_operation_account(ctx)
     }
 
@@ -139,7 +139,7 @@ pub mod amm_v3 {
     ///           update whitelist mint when the `param` is 2
     ///           remove whitelist mint when the `param` is 3
     ///
-    pub fn update_operation_account(
+    pub fn update_operation_account<'info>(
         ctx: Context<UpdateOperationAccount>,
         param: u8,
         keys: Vec<Pubkey>,
@@ -171,7 +171,7 @@ pub mod amm_v3 {
     /// * `end_time` - reward end timestamp
     /// * `emissions_per_second_x64` - Token reward per second are earned per unit of liquidity.
     ///
-    pub fn initialize_reward(
+    pub fn initialize_reward<'info>(
         ctx: Context<InitializeReward>,
         param: InitializeRewardParam,
     ) -> Result<()> {
@@ -185,7 +185,7 @@ pub mod amm_v3 {
     /// * `ctx`- The context of accounts
     /// * `reward_index` - the index to reward info
     ///
-    pub fn collect_remaining_rewards(
+    pub fn collect_remaining_rewards<'info>(
         ctx: Context<CollectRemainingRewards>,
         reward_index: u8,
     ) -> Result<()> {
@@ -215,7 +215,7 @@ pub mod amm_v3 {
     /// * `open_time` - reward open timestamp, must be set when starting a new cycle
     /// * `end_time` - reward end timestamp
     ///
-    pub fn set_reward_params<'a, 'b, 'c: 'info, 'info>(
+    pub fn set_reward_params<'a, 'b, 'c, 'info>(
         ctx: Context<'a, 'b, 'c, 'info, SetRewardParams<'info>>,
         reward_index: u8,
         emissions_per_second_x64: u128,
@@ -239,7 +239,7 @@ pub mod amm_v3 {
     /// * `amount_0_requested` - The maximum amount of token_0 to send, can be 0 to collect fees in only token_1
     /// * `amount_1_requested` - The maximum amount of token_1 to send, can be 0 to collect fees in only token_0
     ///
-    pub fn collect_protocol_fee(
+    pub fn collect_protocol_fee<'info>(
         ctx: Context<CollectProtocolFee>,
         amount_0_requested: u64,
         amount_1_requested: u64,
@@ -255,7 +255,7 @@ pub mod amm_v3 {
     /// * `amount_0_requested` - The maximum amount of token_0 to send, can be 0 to collect fees in only token_1
     /// * `amount_1_requested` - The maximum amount of token_1 to send, can be 0 to collect fees in only token_0
     ///
-    pub fn collect_fund_fee(
+    pub fn collect_fund_fee<'info>(
         ctx: Context<CollectFundFee>,
         amount_0_requested: u64,
         amount_1_requested: u64,
@@ -277,7 +277,7 @@ pub mod amm_v3 {
     /// * `amount_0_max` - The max amount of token_0 to spend, which serves as a slippage check
     /// * `amount_1_max` - The max amount of token_1 to spend, which serves as a slippage check
     ///
-    pub fn open_position<'a, 'b, 'c: 'info, 'info>(
+    pub fn open_position<'a, 'b, 'c, 'info>(
         ctx: Context<'a, 'b, 'c, 'info, OpenPosition<'info>>,
         tick_lower_index: i32,
         tick_upper_index: i32,
@@ -317,7 +317,7 @@ pub mod amm_v3 {
     /// * `with_metadata` - The flag indicating whether to create NFT mint metadata
     /// * `base_flag` - if the liquidity specified as zero, true: calculate liquidity base amount_0_max otherwise base amount_1_max
     ///
-    pub fn open_position_v2<'a, 'b, 'c: 'info, 'info>(
+    pub fn open_position_v2<'a, 'b, 'c, 'info>(
         ctx: Context<'a, 'b, 'c, 'info, OpenPositionV2<'info>>,
         tick_lower_index: i32,
         tick_upper_index: i32,
@@ -358,7 +358,7 @@ pub mod amm_v3 {
     /// * `with_metadata` - The flag indicating whether to create NFT mint metadata
     /// * `base_flag` - if the liquidity specified as zero, true: calculate liquidity base amount_0_max otherwise base amount_1_max
     ///
-    pub fn open_position_with_token22_nft<'a, 'b, 'c: 'info, 'info>(
+    pub fn open_position_with_token22_nft<'a, 'b, 'c, 'info>(
         ctx: Context<'a, 'b, 'c, 'info, OpenPositionWithToken22Nft<'info>>,
         tick_lower_index: i32,
         tick_upper_index: i32,
@@ -406,7 +406,7 @@ pub mod amm_v3 {
     /// * `amount_0_max` - The max amount of token_0 to spend, which serves as a slippage check
     /// * `amount_1_max` - The max amount of token_1 to spend, which serves as a slippage check
     ///
-    pub fn increase_liquidity<'a, 'b, 'c: 'info, 'info>(
+    pub fn increase_liquidity<'a, 'b, 'c, 'info>(
         ctx: Context<'a, 'b, 'c, 'info, IncreaseLiquidity<'info>>,
         liquidity: u128,
         amount_0_max: u64,
@@ -426,7 +426,7 @@ pub mod amm_v3 {
     /// * `amount_1_max` - The max amount of token_1 to spend, which serves as a slippage check
     /// * `base_flag` - must be specified if liquidity is zero, true: calculate liquidity base amount_0_max otherwise base amount_1_max
     ///
-    pub fn increase_liquidity_v2<'a, 'b, 'c: 'info, 'info>(
+    pub fn increase_liquidity_v2<'a, 'b, 'c, 'info>(
         ctx: Context<'a, 'b, 'c, 'info, IncreaseLiquidityV2<'info>>,
         liquidity: u128,
         amount_0_max: u64,
@@ -449,7 +449,7 @@ pub mod amm_v3 {
     /// * `amount_0_min` - The minimum amount of token_0 that should be accounted for the burned liquidity
     /// * `amount_1_min` - The minimum amount of token_1 that should be accounted for the burned liquidity
     ///
-    pub fn decrease_liquidity<'a, 'b, 'c: 'info, 'info>(
+    pub fn decrease_liquidity<'a, 'b, 'c, 'info>(
         ctx: Context<'a, 'b, 'c, 'info, DecreaseLiquidity<'info>>,
         liquidity: u128,
         amount_0_min: u64,
@@ -467,7 +467,7 @@ pub mod amm_v3 {
     /// * `amount_0_min` - The minimum amount of token_0 that should be accounted for the burned liquidity
     /// * `amount_1_min` - The minimum amount of token_1 that should be accounted for the burned liquidity
     ///
-    pub fn decrease_liquidity_v2<'a, 'b, 'c: 'info, 'info>(
+    pub fn decrease_liquidity_v2<'a, 'b, 'c, 'info>(
         ctx: Context<'a, 'b, 'c, 'info, DecreaseLiquidityV2<'info>>,
         liquidity: u128,
         amount_0_min: u64,
@@ -487,7 +487,7 @@ pub mod amm_v3 {
     /// * `sqrt_price_limit` - The Q64.64 sqrt price √P limit. If zero for one, the price cannot
     /// * `is_base_input` - swap base input or swap base output
     ///
-    pub fn swap<'a, 'b, 'c: 'info, 'info>(
+    pub fn swap<'a, 'b, 'c, 'info>(
         ctx: Context<'a, 'b, 'c, 'info, SwapSingle<'info>>,
         amount: u64,
         other_amount_threshold: u64,
@@ -513,7 +513,7 @@ pub mod amm_v3 {
     /// * `sqrt_price_limit` - The Q64.64 sqrt price √P limit. If zero for one, the price cannot
     /// * `is_base_input` - swap base input or swap base output
     ///
-    pub fn swap_v2<'a, 'b, 'c: 'info, 'info>(
+    pub fn swap_v2<'a, 'b, 'c, 'info>(
         ctx: Context<'a, 'b, 'c, 'info, SwapSingleV2<'info>>,
         amount: u64,
         other_amount_threshold: u64,
@@ -537,7 +537,7 @@ pub mod amm_v3 {
     /// * `amount_in` - Token amount to be swapped in
     /// * `amount_out_minimum` - Panic if output amount is below minimum amount. For slippage.
     ///
-    pub fn swap_router_base_in<'a, 'b, 'c: 'info, 'info>(
+    pub fn swap_router_base_in<'a, 'b, 'c, 'info>(
         ctx: Context<'a, 'b, 'c, 'info, SwapRouterBaseIn<'info>>,
         amount_in: u64,
         amount_out_minimum: u64,

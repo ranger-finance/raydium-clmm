@@ -35,7 +35,7 @@ pub struct CreateSupportMintAssociated<'info> {
 
 pub fn create_support_mint_associated(ctx: Context<CreateSupportMintAssociated>) -> Result<()> {
     let support_mint_state = ctx.accounts.support_mint_associated.deref_mut();
-    support_mint_state.bump = ctx.bumps.support_mint_associated;
+    support_mint_state.bump = *ctx.bumps.get("support_mint_associated").unwrap();
     support_mint_state.mint = ctx.accounts.token_mint.key();
 
     Ok(())

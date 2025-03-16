@@ -4,6 +4,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::Token;
 use anchor_spl::token_interface::Mint;
 use anchor_spl::token_interface::{Token2022, TokenAccount};
+use std::str::FromStr;
 
 #[derive(Accounts)]
 pub struct DecreaseLiquidityV2<'info> {
@@ -82,7 +83,7 @@ pub struct DecreaseLiquidityV2<'info> {
     /// memo program
     /// CHECK:
     #[account(
-        address = spl_memo::id()
+        address = Pubkey::from_str("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr").unwrap()
     )]
     pub memo_program: UncheckedAccount<'info>,
 
@@ -108,7 +109,7 @@ pub struct DecreaseLiquidityV2<'info> {
     // pub tick_array_bitmap: AccountLoader<'info, TickArrayBitmapExtension>,
 }
 
-pub fn decrease_liquidity_v2<'a, 'b, 'c: 'info, 'info>(
+pub fn decrease_liquidity_v2<'a, 'b, 'c, 'info>(
     ctx: Context<'a, 'b, 'c, 'info, DecreaseLiquidityV2<'info>>,
     liquidity: u128,
     amount_0_min: u64,

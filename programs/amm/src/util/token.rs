@@ -11,7 +11,8 @@ use anchor_spl::token_2022::{
     spl_token_2022::{
         self,
         extension::{
-            metadata_pointer,
+            // TODO - Disabling to support anchor v0.28.0
+            // metadata_pointer,
             transfer_fee::{TransferFeeConfig, MAX_FEE_BASIS_POINTS},
             BaseStateWithExtensions, ExtensionType, StateWithExtensions,
         },
@@ -30,14 +31,15 @@ const MINT_WHITELIST: [&'static str; 6] = [
     "AUSD1jCcCyPLybk1YnvPWsHQSrZ46dxwoMniN4N2UEB9",
 ];
 
-pub fn invoke_memo_instruction<'info>(
-    memo_msg: &[u8],
-    memo_program: AccountInfo<'info>,
-) -> solana_program::entrypoint::ProgramResult {
-    let ix = spl_memo::build_memo(memo_msg, &Vec::new());
-    let accounts = vec![memo_program];
-    solana_program::program::invoke(&ix, &accounts[..])
-}
+// TODO - Disabling to support anchor v0.28.0
+// pub fn invoke_memo_instruction<'info>(
+//     memo_msg: &[u8],
+//     memo_program: AccountInfo<'info>,
+// ) -> solana_program::entrypoint::ProgramResult {
+//     let ix = spl_memo::build_memo(memo_msg, &Vec::new());
+//     let accounts = vec![memo_program];
+//     solana_program::program::invoke(&ix, &accounts[..])
+// }
 
 pub fn transfer_from_user_to_pool_vault<'info>(
     signer: &Signer<'info>,
@@ -257,121 +259,123 @@ pub fn support_mint_associated_is_initialized(
     return Ok(mint_associated_is_initialized);
 }
 
-pub fn is_supported_mint(
-    mint_account: &InterfaceAccount<Mint>,
-    mint_associated_is_initialized: bool,
-) -> Result<bool> {
-    let mint_info = mint_account.to_account_info();
-    if *mint_info.owner == Token::id() {
-        return Ok(true);
-    }
-    let mint_whitelist: HashSet<&str> = MINT_WHITELIST.into_iter().collect();
-    if mint_whitelist.contains(mint_account.key().to_string().as_str()) {
-        return Ok(true);
-    }
-    if mint_associated_is_initialized {
-        return Ok(true);
-    }
-    let mint_data = mint_info.try_borrow_data()?;
-    let mint = StateWithExtensions::<spl_token_2022::state::Mint>::unpack(&mint_data)?;
-    let extensions = mint.get_extension_types()?;
-    for e in extensions {
-        if e != ExtensionType::TransferFeeConfig
-            && e != ExtensionType::MetadataPointer
-            && e != ExtensionType::TokenMetadata
-            && e != ExtensionType::InterestBearingConfig
-        {
-            return Ok(false);
-        }
-    }
-    Ok(true)
-}
+// TODO - Disabling to support anchor v0.28.0
+// pub fn is_supported_mint(
+//     mint_account: &InterfaceAccount<Mint>,
+//     mint_associated_is_initialized: bool,
+// ) -> Result<bool> {
+//     let mint_info = mint_account.to_account_info();
+//     if *mint_info.owner == Token::id() {
+//         return Ok(true);
+//     }
+//     let mint_whitelist: HashSet<&str> = MINT_WHITELIST.into_iter().collect();
+//     if mint_whitelist.contains(mint_account.key().to_string().as_str()) {
+//         return Ok(true);
+//     }
+//     if mint_associated_is_initialized {
+//         return Ok(true);
+//     }
+//     let mint_data = mint_info.try_borrow_data()?;
+//     let mint = StateWithExtensions::<spl_token_2022::state::Mint>::unpack(&mint_data)?;
+//     let extensions = mint.get_extension_types()?;
+//     for e in extensions {
+//         if e != ExtensionType::TransferFeeConfig
+//             && e != ExtensionType::MetadataPointer
+//             && e != ExtensionType::TokenMetadata
+//             && e != ExtensionType::InterestBearingConfig
+//         {
+//             return Ok(false);
+//         }
+//     }
+//     Ok(true)
+// }
 
-pub fn create_position_nft_mint_with_extensions<'info>(
-    payer: &Signer<'info>,
-    position_nft_mint: &AccountInfo<'info>,
-    mint_authority: &AccountInfo<'info>,
-    mint_close_authority: &AccountInfo<'info>,
-    system_program: &Program<'info, System>,
-    token_2022_program: &Program<'info, Token2022>,
-    with_matedata: bool,
-) -> Result<()> {
-    let extensions = if with_matedata {
-        [
-            ExtensionType::MintCloseAuthority,
-            ExtensionType::MetadataPointer,
-        ]
-        .to_vec()
-    } else {
-        [ExtensionType::MintCloseAuthority].to_vec()
-    };
-    let space =
-        ExtensionType::try_calculate_account_len::<spl_token_2022::state::Mint>(&extensions)?;
+// TODO - Disabling to support anchor v0.28.0
+// pub fn create_position_nft_mint_with_extensions<'info>(
+//     payer: &Signer<'info>,
+//     position_nft_mint: &AccountInfo<'info>,
+//     mint_authority: &AccountInfo<'info>,
+//     mint_close_authority: &AccountInfo<'info>,
+//     system_program: &Program<'info, System>,
+//     token_2022_program: &Program<'info, Token2022>,
+//     with_matedata: bool,
+// ) -> Result<()> {
+//     let extensions = if with_matedata {
+//         [
+//             ExtensionType::MintCloseAuthority,
+//             ExtensionType::MetadataPointer,
+//         ]
+//         .to_vec()
+//     } else {
+//         [ExtensionType::MintCloseAuthority].to_vec()
+//     };
+//     let space =
+//         ExtensionType::try_calculate_account_len::<spl_token_2022::state::Mint>(&extensions)?;
 
-    let lamports = Rent::get()?.minimum_balance(space);
+//     let lamports = Rent::get()?.minimum_balance(space);
 
-    // create mint account
-    create_account(
-        CpiContext::new(
-            system_program.to_account_info(),
-            CreateAccount {
-                from: payer.to_account_info(),
-                to: position_nft_mint.to_account_info(),
-            },
-        ),
-        lamports,
-        space as u64,
-        token_2022_program.key,
-    )?;
+//     // create mint account
+//     create_account(
+//         CpiContext::new(
+//             system_program.to_account_info(),
+//             CreateAccount {
+//                 from: payer.to_account_info(),
+//                 to: position_nft_mint.to_account_info(),
+//             },
+//         ),
+//         lamports,
+//         space as u64,
+//         token_2022_program.key,
+//     )?;
 
-    // initialize token extensions
-    for e in extensions {
-        match e {
-            ExtensionType::MetadataPointer => {
-                let ix = metadata_pointer::instruction::initialize(
-                    token_2022_program.key,
-                    position_nft_mint.key,
-                    None,
-                    Some(position_nft_mint.key()),
-                )?;
-                solana_program::program::invoke(
-                    &ix,
-                    &[
-                        token_2022_program.to_account_info(),
-                        position_nft_mint.to_account_info(),
-                    ],
-                )?;
-            }
-            ExtensionType::MintCloseAuthority => {
-                let ix = spl_token_2022::instruction::initialize_mint_close_authority(
-                    token_2022_program.key,
-                    position_nft_mint.key,
-                    Some(mint_close_authority.key),
-                )?;
-                solana_program::program::invoke(
-                    &ix,
-                    &[
-                        token_2022_program.to_account_info(),
-                        position_nft_mint.to_account_info(),
-                    ],
-                )?;
-            }
-            _ => {
-                return err!(ErrorCode::NotSupportMint);
-            }
-        }
-    }
+//     // initialize token extensions
+//     for e in extensions {
+//         match e {
+//             ExtensionType::MetadataPointer => {
+//                 let ix = metadata_pointer::instruction::initialize(
+//                     token_2022_program.key,
+//                     position_nft_mint.key,
+//                     None,
+//                     Some(position_nft_mint.key()),
+//                 )?;
+//                 solana_program::program::invoke(
+//                     &ix,
+//                     &[
+//                         token_2022_program.to_account_info(),
+//                         position_nft_mint.to_account_info(),
+//                     ],
+//                 )?;
+//             }
+//             ExtensionType::MintCloseAuthority => {
+//                 let ix = spl_token_2022::instruction::initialize_mint_close_authority(
+//                     token_2022_program.key,
+//                     position_nft_mint.key,
+//                     Some(mint_close_authority.key),
+//                 )?;
+//                 solana_program::program::invoke(
+//                     &ix,
+//                     &[
+//                         token_2022_program.to_account_info(),
+//                         position_nft_mint.to_account_info(),
+//                     ],
+//                 )?;
+//             }
+//             _ => {
+//                 return err!(ErrorCode::NotSupportMint);
+//             }
+//         }
+//     }
 
-    // initialize mint account
-    initialize_mint2(
-        CpiContext::new(
-            token_2022_program.to_account_info(),
-            InitializeMint2 {
-                mint: position_nft_mint.to_account_info(),
-            },
-        ),
-        0,
-        &mint_authority.key(),
-        None,
-    )
-}
+//     // initialize mint account
+//     initialize_mint2(
+//         CpiContext::new(
+//             token_2022_program.to_account_info(),
+//             InitializeMint2 {
+//                 mint: position_nft_mint.to_account_info(),
+//             },
+//         ),
+//         0,
+//         &mint_authority.key(),
+//         None,
+//     )
+// }

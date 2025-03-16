@@ -156,7 +156,7 @@ pub struct OpenPositionV2<'info> {
     // pub tick_array_bitmap: AccountLoader<'info, TickArrayBitmapExtension>,
 }
 
-pub fn open_position_v2<'a, 'b, 'c: 'info, 'info>(
+pub fn open_position_v2<'a, 'b, 'c, 'info>(
     ctx: Context<'a, 'b, 'c, 'info, OpenPositionV2<'info>>,
     liquidity: u128,
     amount_0_max: u64,
@@ -192,8 +192,8 @@ pub fn open_position_v2<'a, 'b, 'c: 'info, 'info>(
         Some(ctx.accounts.vault_0_mint.clone()),
         Some(ctx.accounts.vault_1_mint.clone()),
         &ctx.remaining_accounts,
-        ctx.bumps.protocol_position,
-        ctx.bumps.personal_position,
+        *ctx.bumps.get("protocol_position").unwrap(),
+        *ctx.bumps.get("personal_position").unwrap(),
         liquidity,
         amount_0_max,
         amount_1_max,

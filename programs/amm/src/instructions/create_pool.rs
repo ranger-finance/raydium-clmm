@@ -136,13 +136,14 @@ pub fn create_pool(ctx: Context<CreatePool>, sqrt_price_x64: u128, open_time: u6
         &ctx.remaining_accounts,
         &ctx.accounts.token_mint_1,
     )?;
-    if !(util::is_supported_mint(&ctx.accounts.token_mint_0, mint0_associated_is_initialized)
-        .unwrap()
-        && util::is_supported_mint(&ctx.accounts.token_mint_1, mint1_associated_is_initialized)
-            .unwrap())
-    {
-        return err!(ErrorCode::NotSupportMint);
-    }
+    // TODO - Disabling to support anchor v0.28.0
+    // if !(util::is_supported_mint(&ctx.accounts.token_mint_0, mint0_associated_is_initialized)
+    //     .unwrap()
+    //     && util::is_supported_mint(&ctx.accounts.token_mint_1, mint1_associated_is_initialized)
+    //         .unwrap())
+    // {
+    //     return err!(ErrorCode::NotSupportMint);
+    // }
     let block_timestamp = solana_program::clock::Clock::get()?.unix_timestamp as u64;
     require_gt!(block_timestamp, open_time);
     let pool_id = ctx.accounts.pool_state.key();
@@ -161,7 +162,7 @@ pub fn create_pool(ctx: Context<CreatePool>, sqrt_price_x64: u128, open_time: u6
         .load_init()?
         .initialize(pool_id)?;
 
-    let bump = ctx.bumps.pool_state;
+    let bump = *ctx.bumps.get("pool_state").unwrap();
     pool_state.initialize(
         bump,
         sqrt_price_x64,
