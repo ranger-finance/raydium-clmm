@@ -46,7 +46,7 @@ impl AmmConfig {
 
 /// Emitted when create or update a config
 #[event]
-#[cfg_attr(feature = "client", derive(Debug))]
+#[derive(Debug)]
 pub struct ConfigChangeEvent {
     pub index: u16,
     #[index]
